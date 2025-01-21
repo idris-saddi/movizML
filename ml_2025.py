@@ -233,3 +233,5 @@ plt.show()
 
 with open('movie_success_model.pkl', 'wb') as file:
     pickle.dump(rf, file)
+
+print("Features required by the model:", list(X.columns))
