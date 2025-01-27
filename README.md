@@ -1,5 +1,3 @@
-Here’s the corrected `README.md` in markdown format:
-
 # Movie Success Prediction Pipeline
 
 This is a comprehensive machine learning pipeline for predicting movie success based on various features such as genre, director, stars, production companies, and more. Here's a breakdown of the key steps and components in the script:
