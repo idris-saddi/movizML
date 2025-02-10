@@ -1,15 +1,24 @@
 from datetime import datetime
 import pandas as pd
+from utils import directors_list, remove_paren, extract_top_n, encode_top_n
+import numpy as np
 
 
 # Load datasets
 def load_data():
     """
-    Loads the movie datasets from pickle files and combines them into a single DataFrame.
+    Loads the movie datasets from pickle files and ensures they are DataFrames.
     """
     movies_8000 = pd.read_pickle('./data/IMDb_8000.pickle')
     df1 = pd.read_pickle('./data/IMDb_top_movies.pickle')
     df2 = pd.read_pickle('./data/IMDb_top_2000s.pickle')
+
+    # Ensure each variable is a DataFrame
+    movies_8000 = pd.DataFrame(movies_8000)
+    df1 = pd.DataFrame(df1)
+    df2 = pd.DataFrame(df2)
+
+    # Concatenate the DataFrames
     movies = pd.concat([movies_8000, df1, df2], ignore_index=True)
     return movies
 
@@ -63,9 +72,38 @@ def compute_years_since_release(movies):
     """
     Computes the number of years since a movie's release date.
     """
-    current_date = pd.to_datetime(datetime.now().date())
-    movies['years since release'] = movies['release date'].apply(
-        lambda x: (current_date - pd.to_datetime(x)).days / 365.25)
+    current_date = pd.Timestamp.today()  # Use Pandas Timestamp
+    movies['release date'] = pd.to_datetime(movies['release date'], errors='coerce')  # Convert safely
+    movies['years since release'] = (current_date - movies['release date']).dt.days / 365.25  # Convert to years
+    # Drop 'release date' to avoid datetime issues
+    movies = movies.drop(columns=['release date'], errors='ignore')
+
+    return movies
+
+
+# Process director names
+def process_directors(movies):
+    """
+    Cleans and processes the director column by splitting names and removing aliases.
+    """
+    movies['director'] = movies['director'].apply(directors_list).apply(remove_paren)
+    return movies
+
+
+# Process top N directors, stars, and production companies
+def process_top_entities(movies):
+    """
+    Identifies the top directors, stars, and production companies and encodes them as dummy variables.
+    """
+    top_directors = extract_top_n(movies, 'director', 10)
+    movies = encode_top_n(movies, 'director', top_directors)
+
+    top_stars = extract_top_n(movies, 'stars', 20)
+    movies = encode_top_n(movies, 'stars', top_stars)
+
+    top_production_companies = extract_top_n(movies, 'production companies', 15)
+    movies = encode_top_n(movies, 'production companies', top_production_companies)
+
     return movies
 
 
@@ -78,6 +116,25 @@ def prepare_data():
     movies = preprocess_data(movies)
     movies = encode_features(movies)
     movies = compute_years_since_release(movies)
+    movies = process_directors(movies)
+    movies = process_top_entities(movies)
+
+    # Ensure 'imdb rating' exists before creating the target column
+    if 'imdb rating' not in movies.columns:
+        raise ValueError("Error: 'imdb rating' column is missing from the dataset.")
+
+    # Define classification target based on IMDb rating
+    criteria = [
+        movies['imdb rating'].between(0, 4),  # Low ratings
+        movies['imdb rating'].between(4, 7),  # Medium ratings
+        movies['imdb rating'].between(7, 10)  # High ratings
+    ]
+    values = [1, 2, 3]  # 1: Low, 2: Medium, 3: High ratings
+    movies['target'] = np.select(criteria, values, default=0)
+
+    # Drop IMDb rating AFTER defining the target variable
+    movies = movies.drop(columns=['imdb rating'], errors='ignore')
+
     return movies
 
 

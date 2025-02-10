@@ -19,6 +19,14 @@ def prepare_training_data(dataf):
     """
     x = dataf.drop(columns=['target'])
     y = dataf['target']
+    # ---Fill missing values with 0
+    x = x.fillna(0)
+    # ---Alternative:
+    # x = x.fillna(x.mean())
+    # ---Alternatively drop rows with missing values
+    # x = x.dropna()
+    # y = y.loc[x.index]  # Keep only the corresponding y-values
+
     return train_test_split(x, y, test_size=0.2, random_state=20)
 
 
@@ -63,9 +71,37 @@ def save_model(model, filename="movie_success_model.pkl"):
     print(f"Model saved as {filename}")
 
 
+def plot_feature_importance(model, feature_names, top_n=20):
+    """
+    Plots feature importance for tree-based models, showing only the top N most important features.
+    """
+    if hasattr(model, "feature_importances_"):  # Ensure model supports feature importance
+        importances = model.feature_importances_
+        feature_importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': importances})
+        feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+
+        # Limit to top N features
+        feature_importance_df = feature_importance_df.head(top_n)
+
+        plt.figure(figsize=(12, 8))
+        plt.barh(feature_importance_df['Feature'], feature_importance_df['Importance'], color='skyblue')
+        plt.xlabel('Importance')
+        plt.ylabel('Feature')
+        plt.title(f'Top {top_n} Feature Importances')
+        plt.gca().invert_yaxis()  # Most important features at the top
+
+        # Adjust layout to prevent overlap
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+    else:
+        print("Feature importance not available for this model.")
+
+
 if __name__ == "__main__":
     df = load_processed_data()
     X_train, X_test, Y_train, Y_test = prepare_training_data(df)
     best_model, results = train_and_evaluate_models(X_train, X_test, Y_train, Y_test)
     plot_model_comparison(results)
     save_model(best_model)
+    plot_feature_importance(best_model, X_train.columns)
