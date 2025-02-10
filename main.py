@@ -8,6 +8,7 @@ model = pickle.load(open('movie_success_model.pkl', 'rb'))
 # Initialize Flask app
 app = Flask(__name__)
 
+
 # Function to add CORS headers manually
 @app.after_request
 def add_cors_headers(response):
@@ -15,10 +16,12 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
 
+
 # Handle OPTIONS method for preflight requests
 @app.route('/predict', methods=['OPTIONS'])
 def options():
     return jsonify({}), 200
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -31,10 +34,12 @@ def predict():
         'Sci-Fi', 'Sport', 'Thriller', 'War', 'Western', 'Brad Bird', 'Christopher Nolan', 'Clint Eastwood',
         'Denis Villeneuve', 'Deon Taylor', 'Martin Scorsese', 'Paul Feig', 'Quentin Tarantino', 'Ron Howard',
         'Steven Spielberg', 'Dwayne Johnson', 'Matthew McConaughey', 'Kevin Hart', 'Tom Hanks', 'Margot Robbie',
-        'Samuel L. Jackson', 'Jake Gyllenhaal', 'Leonardo DiCaprio', 'Anna Kendrick', 'Will Smith', 'Michael Fassbender',
+        'Samuel L. Jackson', 'Jake Gyllenhaal', 'Leonardo DiCaprio', 'Anna Kendrick', 'Will Smith',
+        'Michael Fassbender',
         'Mark Wahlberg', 'Ryan Reynolds', 'Joel Edgerton', 'Matt Damon', 'Charlize Theron', 'Jessica Chastain',
         'Steve Carell', 'Nicole Kidman', 'Woody Harrelson', 'Columbia Pictures', 'Universal Pictures', 'Warner Bros.',
-        'Walt Disney Pictures', 'Paramount Pictures', 'New Line Cinema', 'Twentieth Century Fox', 'Blumhouse Productions',
+        'Walt Disney Pictures', 'Paramount Pictures', 'New Line Cinema', 'Twentieth Century Fox',
+        'Blumhouse Productions',
         'Summit Entertainment', 'Perfect World Pictures', 'TSG Entertainment', 'Legendary Entertainment',
         'Metro-Goldwyn-Mayer (MGM)', 'Lionsgate', 'LStar Capital', 'years since release'
     ]
@@ -54,6 +59,7 @@ def predict():
     print('prediction:', prediction)
 
     return jsonify({'prediction': prediction.tolist()})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
