@@ -55,7 +55,9 @@ This is a comprehensive machine learning pipeline for predicting movie success b
 
 #### Request Headers:
 ```json
-Content-Type: application/json
+{
+     "Content-Type": "application/json"
+}
 ```
 
 #### Request Body:
@@ -63,14 +65,14 @@ The request body should be a JSON object containing the following fields:
 
 ### `/predict` Endpoint Documentation
 
-| Field                           | Data Type   | Meaning                                                                                                      |
-|----------------------------------|-------------|--------------------------------------------------------------------------------------------------------------|
-| `budget`                        | `float`     | The budget of the movie (in USD or another relevant currency).                                                |
-| `imdb raters`                   | `int`       | The number of IMDb users who rated the movie.                                                                |
-| `genres_*`                      | `int`       | One-hot encoded genre columns (e.g., `genres_Action`, `genres_Comedy`, etc.). Each genre is a binary column indicating whether the movie belongs to that genre or not. |
-| `top_*`                         | `int`       | One-hot encoded columns for the top directors (e.g., `top_Chris_Nolan`, `top_Steven_Spielberg`). These columns represent whether the movie was directed by one of the top directors. |
-| `production companies_*`        | `int`       | One-hot encoded columns for the top production companies (e.g., `production companies_Warner Bros`, `production companies_Disney`). These columns indicate whether the movie was produced by a top company. |
-| `years since release`           | `float`     | The number of years since the movie was released, calculated as the difference between the current date and the release date. |
+| Field                    | Data Type | Meaning                                                                                                                                                                                                     |
+|--------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `budget`                 | `float`   | The budget of the movie (in USD or another relevant currency).                                                                                                                                              |
+| `imdb raters`            | `int`     | The number of IMDb users who rated the movie.                                                                                                                                                               |
+| `genres_*`               | `int`     | One-hot encoded genre columns (e.g., `genres_Action`, `genres_Comedy`, etc.). Each genre is a binary column indicating whether the movie belongs to that genre or not.                                      |
+| `top_*`                  | `int`     | One-hot encoded columns for the top directors (e.g., `top_Chris_Nolan`, `top_Steven_Spielberg`). These columns represent whether the movie was directed by one of the top directors.                        |
+| `production companies_*` | `int`     | One-hot encoded columns for the top production companies (e.g., `production companies_Warner Bros`, `production companies_Disney`). These columns indicate whether the movie was produced by a top company. |
+| `years since release`    | `float`   | The number of years since the movie was released, calculated as the difference between the current date and the release date.                                                                               |
 
 #### Example of One-Hot Encoded Fields:
 - **Genres**: If a movie is in both Action and Comedy genres, you would have `genres_Action: 1`, `genres_Comedy: 1`, and other genre columns like `genres_Drama: 0`, `genres_Romance: 0`, etc.
