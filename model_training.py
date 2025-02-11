@@ -9,7 +9,7 @@ import pickle
 # Load processed data
 def load_processed_data():
     """Loads the processed movie dataset from pickle file."""
-    return pd.read_pickle("./data/processed_movies.pkl")
+    return pd.read_pickle("./model/processed_movies.pkl")
 
 
 # Prepare data for model training
@@ -94,6 +94,9 @@ def plot_feature_importance(model, feature_names, top_n=20):
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.show()
+
+        with open('./model/feature_names.pkl', 'wb') as f:
+            pickle.dump(list(feature_names), f)
     else:
         print("Feature importance not available for this model.")
 
