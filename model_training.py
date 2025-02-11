@@ -46,8 +46,8 @@ def train_and_evaluate_models(x_train, x_test, y_train, y_test):
     optimal_model = None
     best_score = 0
     for name, model in models.items():
-        model.fit(x_train, y_train if name != 'XGB Classifier' else (y_train - 1))
-        score = model.score(x_test, y_test if name != 'XGB Classifier' else (y_test - 1)) * 100
+        model.fit(x_train, y_train)
+        score = model.score(x_test, y_test) * 100
         res[name] = score
         print(f'{name} Accuracy: {score:.2f}%')
         if score > best_score:
