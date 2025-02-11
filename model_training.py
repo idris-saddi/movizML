@@ -9,7 +9,7 @@ import pickle
 # Load processed data
 def load_processed_data():
     """Loads the processed movie dataset from pickle file."""
-    return pd.read_pickle("./data/processed_movies.pkl")
+    return pd.read_pickle("./model/processed_movies.pkl")
 
 
 # Prepare data for model training
@@ -43,13 +43,18 @@ def train_and_evaluate_models(x_train, x_test, y_train, y_test):
     }
 
     res = {}
+    optimal_model = None
+    best_score = 0
     for name, model in models.items():
-        model.fit(x_train, y_train)
-        score = model.score(x_test, y_test) * 100
+        model.fit(x_train, y_train if name != 'XGB Classifier' else (y_train - 1))
+        score = model.score(x_test, y_test if name != 'XGB Classifier' else (y_test - 1)) * 100
         res[name] = score
         print(f'{name} Accuracy: {score:.2f}%')
+        if score > best_score:
+            best_score = score
+            optimal_model = model
 
-    return models['Random Forest'], res
+    return optimal_model, res
 
 
 # Plot model comparison
@@ -94,6 +99,9 @@ def plot_feature_importance(model, feature_names, top_n=20):
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.show()
+
+        with open('./model/feature_names.pkl', 'wb') as f:
+            pickle.dump(list(feature_names), f)
     else:
         print("Feature importance not available for this model.")
 

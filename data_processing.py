@@ -1,4 +1,3 @@
-from datetime import datetime
 import pandas as pd
 from utils import directors_list, remove_paren, extract_top_n, encode_top_n
 import numpy as np
@@ -134,10 +133,11 @@ def prepare_data():
 
     # Drop IMDb rating AFTER defining the target variable
     movies = movies.drop(columns=['imdb rating'], errors='ignore')
+    # movies.columns = movies.columns.str.strip()
 
     return movies
 
 
 if __name__ == "__main__":
     processed_data = prepare_data()
-    processed_data.to_pickle("./data/processed_movies.pkl")
+    processed_data.to_pickle("./model/processed_movies.pkl")

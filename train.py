@@ -3,10 +3,11 @@ from model_training import load_processed_data, prepare_training_data, plot_feat
 from model_training import plot_model_comparison, train_and_evaluate_models, save_model
 
 if __name__ == "__main__":
+    # ///////////// Process and save the cleaned dataset /////////////
     print("Preparing data...")
-    # Process and save the cleaned dataset
     processed_data = prepare_data()
-    processed_data.to_pickle("./data/processed_movies.pkl")
+    processed_data.to_pickle("./model/processed_movies.pkl")
+    # ///////////// ///////////// ///////////// ///////////// /////////////
 
     print("Loading processed data...")
     df = load_processed_data()
@@ -25,6 +26,6 @@ if __name__ == "__main__":
     plot_feature_importance(best_model, x_train.columns)
 
     print("Saving best model...")
-    save_model(best_model)
+    save_model(best_model, "./model/refactored_success_model.pkl")
 
     print("Training complete. Model saved successfully!")
