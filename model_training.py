@@ -1,5 +1,6 @@
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, GradientBoostingClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -39,7 +40,8 @@ def train_and_evaluate_models(x_train, x_test, y_train, y_test):
         'Random Forest': RandomForestClassifier(n_estimators=1000),
         'KNN': KNeighborsClassifier(),
         'Extra Trees': ExtraTreesClassifier(),
-        'Gradient Boosting': GradientBoostingClassifier()
+        'Gradient Boosting': GradientBoostingClassifier(),
+        'Naive Bayes': GaussianNB()
     }
 
     res = {}
@@ -61,7 +63,7 @@ def train_and_evaluate_models(x_train, x_test, y_train, y_test):
 def plot_model_comparison(res):
     """Plots a bar chart comparing model accuracies."""
     plt.figure(figsize=(10, 6))
-    plt.bar(res.keys(), res.values(), color=['blue', 'green', 'red', 'purple'])
+    plt.bar(res.keys(), res.values(), color=['blue', 'green', 'red', 'purple','yellow'])
     plt.xlabel('Classification Algorithm')
     plt.ylabel('Accuracy (%)')
     plt.title('Comparison of Model Accuracies')
