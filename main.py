@@ -1,10 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
 import pickle
 import pandas as pd
 
 # Load the trained model
 model = pickle.load(open('./model/refactored_success_model.pkl', 'rb'))
 feature_names = pickle.load(open('./model/feature_names.pkl', 'rb'))
+with open("model/categorized_features.json", "r") as file:
+    categorized_features = json.load(file)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -42,6 +44,11 @@ def predict():
     except Exception as e:
         print(f"Prediction error : {e}")
         return jsonify({"error": "An error occured during preduction"}), 500
+
+
+@app.route('/features', methods=['GET'])
+def get_feature_names():
+    return jsonify({"features": categorized_features})
 
 
 if __name__ == '__main__':

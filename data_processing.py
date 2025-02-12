@@ -2,6 +2,8 @@ import pandas as pd
 from utils import directors_list, remove_paren, extract_top_n, encode_top_n
 import numpy as np
 
+categorized_features = dict()
+
 
 # Load datasets
 def load_data():
@@ -49,19 +51,29 @@ def encode_features(movies):
     """
     Encodes categorical features such as MPAA ratings and genres into numerical format.
     """
+    uncategorized_feats = ['release date', 'genres', 'imdb raters', 'director', 'stars', 'production companies', 'mpaa']
+    numerical_feats = [col for col in movies.columns if col not in uncategorized_feats]
+    numerical_feats.append('years since release')
+
     # Convert MPAA ratings to dummy variables
     mpaa_dummies = pd.get_dummies(movies['mpaa']).drop(columns=['Not Rated', 'Unrated'], errors='ignore')
     movies = movies.drop(columns=['mpaa']).join(mpaa_dummies)
 
     # Process genres
-    movies['genres'] = movies['genres'].fillna('').astype(str).str.replace(r"[\"\[\]\']", "", regex=True).str.strip()
-    genre_dummies = pd.get_dummies(movies['genres'].str.split(',').apply(pd.Series).stack()).groupby(level=0).sum()
+    movies['genres'] = movies['genres'].fillna('').astype(str).str.replace(r"[\"\[\]\']", "", regex=True)
+
+    # Split genres by comma, strip spaces from each genre, and explode
+    genre_list = movies['genres'].str.split(',').apply(lambda x: [i.strip() for i in x])
+    genre_dummies = pd.get_dummies(genre_list.explode()).groupby(level=0).sum()
 
     # Merge genres into the main DataFrame
     movies = movies.drop(columns=['genres']).join(genre_dummies)
 
     # Drop 'imdb raters' column if present
     movies = movies.drop(columns=['imdb raters'], errors='ignore')
+
+    categorized_features.update({'genres': list(genre_dummies.columns), 'ratings': list(mpaa_dummies.columns),
+                                 'numerical': numerical_feats})
 
     return movies
 
@@ -95,13 +107,15 @@ def process_top_entities(movies):
     Identifies the top directors, stars, and production companies and encodes them as dummy variables.
     """
     top_directors = extract_top_n(movies, 'director', 10)
-    movies = encode_top_n(movies, 'director', top_directors)
+    movies, director_names = encode_top_n(movies, 'director', top_directors)
 
     top_stars = extract_top_n(movies, 'stars', 20)
-    movies = encode_top_n(movies, 'stars', top_stars)
+    movies, star_names = encode_top_n(movies, 'stars', top_stars)
 
     top_production_companies = extract_top_n(movies, 'production companies', 15)
-    movies = encode_top_n(movies, 'production companies', top_production_companies)
+    movies, production_names = encode_top_n(movies, 'production companies', top_production_companies)
+
+    categorized_features.update(director_names | star_names | production_names)
 
     return movies
 
@@ -133,11 +147,11 @@ def prepare_data():
 
     # Drop IMDb rating AFTER defining the target variable
     movies = movies.drop(columns=['imdb rating'], errors='ignore')
-    # movies.columns = movies.columns.str.strip()
+    movies.columns = movies.columns.str.strip()
 
-    return movies
+    return movies, categorized_features
 
 
 if __name__ == "__main__":
-    processed_data = prepare_data()
+    processed_data, feature_names = prepare_data()
     processed_data.to_pickle("./model/processed_movies.pkl")

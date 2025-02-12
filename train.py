@@ -1,3 +1,4 @@
+import json
 from data_processing import prepare_data
 from model_training import load_processed_data, prepare_training_data, plot_feature_importance
 from model_training import plot_model_comparison, train_and_evaluate_models, save_model
@@ -5,7 +6,9 @@ from model_training import plot_model_comparison, train_and_evaluate_models, sav
 if __name__ == "__main__":
     # ///////////// Process and save the cleaned dataset /////////////
     print("Preparing data...")
-    processed_data = prepare_data()
+    processed_data, categorized_features = prepare_data()
+    with open("model/categorized_features.json", "w") as file:
+        json.dump(categorized_features, file, indent=4)
     processed_data.to_pickle("./model/processed_movies.pkl")
     # ///////////// ///////////// ///////////// ///////////// /////////////
 
